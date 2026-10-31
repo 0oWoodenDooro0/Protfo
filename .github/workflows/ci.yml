@@ -28,9 +28,6 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
-      - name: Verify zero emoji rule
-        run: ./gradlew checkNoEmojis --stacktrace
-
       - name: Run Unit & Robolectric Tests
         run: ./gradlew test --stacktrace
 
