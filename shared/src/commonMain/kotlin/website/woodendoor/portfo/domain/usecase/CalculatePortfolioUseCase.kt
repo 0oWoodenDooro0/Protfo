@@ -1,5 +1,6 @@
 package website.woodendoor.portfo.domain.usecase
 
+import kotlin.math.round
 import website.woodendoor.portfo.domain.model.Holding
 import website.woodendoor.portfo.domain.model.Market
 import website.woodendoor.portfo.domain.model.MarketSummary
@@ -59,28 +60,30 @@ class CalculatePortfolioUseCase {
             marketRealizedPnL += symbolRealizedPnL
 
             if (currentShares > 1e-6) {
-                val avgCost = currentCostBasis / currentShares
+                val cleanShares = round(currentShares * 1e8) / 1e8
+                val cleanCostBasis = round(currentCostBasis * 1e6) / 1e6
+                val avgCost = cleanCostBasis / cleanShares
                 activeHoldings.add(
                     Holding(
                         symbol = symbol,
                         name = assetName,
                         market = market,
                         currency = market.currency,
-                        totalShares = currentShares,
+                        totalShares = cleanShares,
                         avgCostPerShare = avgCost,
-                        totalCostBasis = currentCostBasis,
-                        realizedPnL = symbolRealizedPnL
+                        totalCostBasis = cleanCostBasis,
+                        realizedPnL = round(symbolRealizedPnL * 1e6) / 1e6
                     )
                 )
             }
         }
 
-        val totalCostBasis = activeHoldings.sumOf { it.totalCostBasis }
+        val totalCostBasis = round(activeHoldings.sumOf { it.totalCostBasis } * 1e6) / 1e6
         val summary = MarketSummary(
             market = market,
             totalCostBasis = totalCostBasis,
             activeHoldingCount = activeHoldings.size,
-            realizedPnL = marketRealizedPnL
+            realizedPnL = round(marketRealizedPnL * 1e6) / 1e6
         )
 
         return PortfolioCalculationResult(

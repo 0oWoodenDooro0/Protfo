@@ -18,9 +18,21 @@ object NumberFormatHelper {
         return if (isNegative) "-$sb" else sb.toString()
     }
 
-    fun formatCurrency(amount: Double, prefix: String = "NT$ "): String {
-        val rounded = round(amount).toLong()
-        return "$prefix${formatWithCommas(rounded)}"
+    fun formatCurrency(amount: Double, prefix: String = "NT$ ", decimals: Int = 0): String {
+        return if (decimals == 0) {
+            val rounded = round(amount).toLong()
+            "$prefix${formatWithCommas(rounded)}"
+        } else {
+            val isNegative = amount < 0
+            val absAmount = abs(amount)
+            val formatted = formatDecimal(absAmount, decimals)
+            val isZero = formatted == "0.${"0".repeat(decimals)}"
+            if (isNegative && !isZero) {
+                "-$prefix$formatted"
+            } else {
+                "$prefix$formatted"
+            }
+        }
     }
 
     fun formatDecimal(value: Double, decimals: Int = 2): String {
@@ -28,20 +40,31 @@ object NumberFormatHelper {
             1 -> 10.0
             2 -> 100.0
             3 -> 1000.0
+            4 -> 10000.0
             else -> 100.0
         }
-        val rounded = round(value * factor) / factor
+        val isNegative = value < 0
+        val absVal = abs(value)
+        val rounded = round(absVal * factor) / factor
         val parts = rounded.toString().split('.')
         val intPart = formatWithCommas(parts[0].toLongOrNull() ?: 0L)
         val fracPart = if (parts.size > 1) parts[1].padEnd(decimals, '0').take(decimals) else "0".repeat(decimals)
-        return "$intPart.$fracPart"
+        val formatted = "$intPart.$fracPart"
+        val isZero = (parts[0].toLongOrNull() ?: 0L) == 0L && fracPart.all { it == '0' }
+        return if (isNegative && !isZero) "-$formatted" else formatted
     }
 
     fun formatShares(shares: Double, isIntegerMarket: Boolean = true): String {
-        return if (isIntegerMarket || shares % 1.0 == 0.0) {
+        return if (isIntegerMarket) {
             "${formatWithCommas(shares.toLong())} 股"
         } else {
-            "${formatDecimal(shares, 3)} 股"
+            val rounded2 = round(shares * 100.0) / 100.0
+            if (abs(shares - rounded2) > 1e-4) {
+                val str4 = formatDecimal(shares, 4).trimEnd('0')
+                "$str4 股"
+            } else {
+                "${formatDecimal(shares, 2)} 股"
+            }
         }
     }
 }

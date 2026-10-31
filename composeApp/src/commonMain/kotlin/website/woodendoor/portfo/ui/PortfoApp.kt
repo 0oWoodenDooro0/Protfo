@@ -45,6 +45,10 @@ fun PortfoApp(
     val taiwanSummary by repository.getMarketSummary(Market.TAIWAN)
         .collectAsState(initial = MarketSummary(market = Market.TAIWAN))
 
+    val usHoldings by repository.getHoldings(Market.US).collectAsState(initial = emptyList())
+    val usSummary by repository.getMarketSummary(Market.US)
+        .collectAsState(initial = MarketSummary(market = Market.US))
+
     PortfoTheme(darkTheme = isDarkTheme) {
         Scaffold(
             modifier = Modifier
@@ -89,7 +93,11 @@ fun PortfoApp(
                             holdings = taiwanHoldings,
                             onAddTransactionClick = { showAddTransactionDialog = true }
                         )
-                        Market.US -> UsMarketContainer()
+                        Market.US -> UsMarketContainer(
+                            summary = usSummary,
+                            holdings = usHoldings,
+                            onAddTransactionClick = { showAddTransactionDialog = true }
+                        )
                     }
                 }
             }
@@ -97,6 +105,7 @@ fun PortfoApp(
             if (showAddTransactionDialog) {
                 AddTransactionDialog(
                     initialMarket = selectedMarket,
+                    repository = repository,
                     onDismiss = { showAddTransactionDialog = false },
                     onSaveTransaction = { transaction ->
                         showAddTransactionDialog = false

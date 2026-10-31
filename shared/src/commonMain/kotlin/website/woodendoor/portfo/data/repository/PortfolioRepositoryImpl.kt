@@ -6,6 +6,7 @@ import website.woodendoor.portfo.data.database.dao.AssetDao
 import website.woodendoor.portfo.data.database.dao.TransactionDao
 import website.woodendoor.portfo.data.database.entity.AssetEntity
 import website.woodendoor.portfo.data.database.entity.TransactionEntity
+import website.woodendoor.portfo.domain.model.Asset
 import website.woodendoor.portfo.domain.model.Holding
 import website.woodendoor.portfo.domain.model.Market
 import website.woodendoor.portfo.domain.model.MarketSummary
@@ -38,6 +39,20 @@ class PortfolioRepositoryImpl(
         }
     }
 
+    override fun getAssets(market: Market): Flow<List<Asset>> {
+        return assetDao.getAssetsByMarket(market.code).map { list ->
+            list.map { it.toDomain() }
+        }
+    }
+
+    override suspend fun searchAssets(market: Market, query: String): List<Asset> {
+        return assetDao.searchAssets(market.code, query).map { it.toDomain() }
+    }
+
+    override suspend fun getAsset(market: Market, symbol: String): Asset? {
+        return assetDao.getAsset(symbol.trim().uppercase(), market.code)?.toDomain()
+    }
+
     override suspend fun addTransaction(transaction: Transaction): Long {
         val entity = transaction.toEntity()
         val id = transactionDao.insertTransaction(entity)
@@ -61,6 +76,13 @@ class PortfolioRepositoryImpl(
         return transactionDao.getTransactionById(id)?.toDomain()
     }
 }
+
+fun AssetEntity.toDomain(): Asset = Asset(
+    symbol = symbol,
+    market = if (market == Market.US.code) Market.US else Market.TAIWAN,
+    name = name,
+    currency = currency
+)
 
 fun TransactionEntity.toDomain(): Transaction = Transaction(
     id = id,

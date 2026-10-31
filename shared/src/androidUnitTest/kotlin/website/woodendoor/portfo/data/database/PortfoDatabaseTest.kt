@@ -147,4 +147,72 @@ class PortfoDatabaseTest {
         assertEquals(600100.0, holdingsAfterDelete[0].totalCostBasis)
         assertEquals(600.10, holdingsAfterDelete[0].avgCostPerShare, 0.001)
     }
+
+    @Test
+    fun testAssetAutocompletionSearchAndRecentOrdering() = runTest {
+        // Upsert 3 US assets with different updatedAt timestamps
+        database.assetDao().upsertAsset(
+            AssetEntity(symbol = "GOOGL", market = "US", name = "Alphabet Inc.", currency = "USD", updatedAt = 1000L)
+        )
+        database.assetDao().upsertAsset(
+            AssetEntity(symbol = "AMZN", market = "US", name = "Amazon.com Inc.", currency = "USD", updatedAt = 2000L)
+        )
+        database.assetDao().upsertAsset(
+            AssetEntity(symbol = "AAPL", market = "US", name = "Apple Inc.", currency = "USD", updatedAt = 3000L)
+        )
+
+        // Recent assets (ordered by updatedAt DESC)
+        val recentAssets = repository.getAssets(Market.US).first()
+        assertEquals(3, recentAssets.size)
+        assertEquals("AAPL", recentAssets[0].symbol)
+        assertEquals("AMZN", recentAssets[1].symbol)
+        assertEquals("GOOGL", recentAssets[2].symbol)
+
+        // Search by symbol prefix
+        val searchAa = repository.searchAssets(Market.US, "AA")
+        assertEquals(1, searchAa.size)
+        assertEquals("AAPL", searchAa[0].symbol)
+
+        val searchAm = repository.searchAssets(Market.US, "AM")
+        assertEquals(1, searchAm.size)
+        assertEquals("AMZN", searchAm[0].symbol)
+
+        // Search by company name substring
+        val searchApple = repository.searchAssets(Market.US, "Apple")
+        assertEquals(1, searchApple.size)
+        assertEquals("AAPL", searchApple[0].symbol)
+        assertEquals("Apple Inc.", searchApple[0].name)
+
+        // Get single asset
+        val assetAapl = repository.getAsset(Market.US, "aapl")
+        assertNotNull(assetAapl)
+        assertEquals("Apple Inc.", assetAapl.name)
+        assertEquals("USD", assetAapl.currency)
+    }
+
+    @Test
+    fun testAddUsTransactionAutomaticallyUpsertsAsset() = runTest {
+        val usTx = Transaction(
+            market = Market.US,
+            symbol = "MSFT",
+            name = "Microsoft Corporation",
+            type = TransactionType.BUY,
+            price = 400.0,
+            shares = 2.5,
+            fee = 1.0,
+            transactedAt = 5000L
+        )
+
+        repository.addTransaction(usTx)
+
+        val asset = repository.getAsset(Market.US, "MSFT")
+        assertNotNull(asset)
+        assertEquals("Microsoft Corporation", asset.name)
+        assertEquals(Market.US, asset.market)
+        assertEquals("USD", asset.currency)
+
+        val usAssets = repository.getAssets(Market.US).first()
+        assertEquals(1, usAssets.size)
+        assertEquals("MSFT", usAssets[0].symbol)
+    }
 }
