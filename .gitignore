@@ -1,11 +1,41 @@
-*.iml
-.gradle
-local.properties
-.idea
-.DS_Store
+# Gradle build outputs and cache
+.gradle/
 build/
+**/build/
+
+# Android Studio & IntelliJ IDEA
+.idea/
+*.iml
+*.iws
+*.ipr
+out/
 captures/
-.externalNativeBuild
-.cxx
-.kotlin
+.externalNativeBuild/
+.cxx/
+
+# Kotlin Multiplatform
+.kotlin/
+kotlin-js-store/
+
+# Local configuration and credentials
+local.properties
+*.local
+*.keystore
+*.jks
+
+# Operating System files
+.DS_Store
+Thumbs.db
+
+# Log and heap dump files
+*.log
+*.hprof
+
+# Built binaries and archives
+*.apk
+*.aab
+
+# Test outputs and debug screenshots
+# Ignore test and screen capture PNGs, while preserving image assets under src/
 *.png
+!**/src/**/*.png
