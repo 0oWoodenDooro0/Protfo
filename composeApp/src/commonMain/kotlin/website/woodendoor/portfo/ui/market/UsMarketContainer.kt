@@ -216,7 +216,7 @@ fun UsHoldingCardVariantB(
                 verticalArrangement = Arrangement.spacedBy(2.dp)
             ) {
                 Text(
-                    text = "$ ${NumberFormatHelper.formatDecimal(holding.totalCostBasis, 2)}",
+                    text = "$ ${NumberFormatHelper.formatCost(holding.totalCostBasis, 2)}",
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.primary,

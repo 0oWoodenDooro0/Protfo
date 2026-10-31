@@ -87,14 +87,15 @@ class StockDetailUiTest {
         composeTestRule.onNodeWithText("持股數量").assertIsDisplayed()
         composeTestRule.onNodeWithText("1,000 股").assertIsDisplayed()
         composeTestRule.onNodeWithText("平均成本").assertIsDisplayed()
-        composeTestRule.onNodeWithText("600.00").assertIsDisplayed()
+        composeTestRule.onNodeWithText("600").assertIsDisplayed()
         composeTestRule.onNodeWithText("總成本").assertIsDisplayed()
         composeTestRule.onNodeWithText("NT$ 600,000").assertIsDisplayed()
 
         // Transaction history
         composeTestRule.onNodeWithText("交易紀錄").assertIsDisplayed()
         composeTestRule.onNodeWithText("買進").assertIsDisplayed()
-        composeTestRule.onNodeWithText("1,000 股 @ 600.00").assertIsDisplayed()
+        composeTestRule.onNodeWithText("1,000 股 @ 600").assertIsDisplayed()
+        composeTestRule.onNodeWithText("手續費: 0").assertIsDisplayed()
 
         // Tap back button
         composeTestRule.onNodeWithTag("detail_back_button").performClick()
@@ -154,11 +155,11 @@ class StockDetailUiTest {
 
         // Verify updated header card values
         composeTestRule.onNodeWithText("1,500 股").assertIsDisplayed()
-        composeTestRule.onNodeWithText("700.00").assertIsDisplayed()
+        composeTestRule.onNodeWithText("700").assertIsDisplayed()
         composeTestRule.onNodeWithText("NT$ 1,050,000").assertIsDisplayed()
 
         // Verify updated transaction card text
-        composeTestRule.onNodeWithText("1,500 股 @ 700.00").assertIsDisplayed()
+        composeTestRule.onNodeWithText("1,500 股 @ 700").assertIsDisplayed()
 
         // Navigate back and verify market container reflected the change
         composeTestRule.onNodeWithTag("detail_back_button").performClick()
@@ -227,7 +228,7 @@ class StockDetailUiTest {
             composeTestRule.onAllNodesWithText("1 筆紀錄").fetchSemanticsNodes().isNotEmpty()
         }
         composeTestRule.onNodeWithText("1,000 股").assertIsDisplayed()
-        composeTestRule.onNodeWithText("600.00").assertIsDisplayed()
+        composeTestRule.onNodeWithText("600").assertIsDisplayed()
         composeTestRule.onNodeWithText("NT$ 600,000").assertIsDisplayed()
     }
 
@@ -294,7 +295,7 @@ class StockDetailUiTest {
         // US metrics
         composeTestRule.onNodeWithText("2.50 股").assertIsDisplayed()
         composeTestRule.onNodeWithText("$ 150.40").assertIsDisplayed()
-        composeTestRule.onNodeWithText("$ 376.00").assertIsDisplayed()
+        composeTestRule.onNodeWithText("$ 376").assertIsDisplayed()
 
         // Edit transaction: change price to 160.0, shares to 3.0
         composeTestRule.onNodeWithTag("tx_edit_button_1").performClick()
@@ -311,7 +312,7 @@ class StockDetailUiTest {
         }
         composeTestRule.onNodeWithText("3.00 股").assertIsDisplayed()
         composeTestRule.onNodeWithText("$ 160.33").assertIsDisplayed()
-        composeTestRule.onNodeWithText("$ 481.00").assertIsDisplayed()
+        composeTestRule.onNodeWithText("$ 481").assertIsDisplayed()
 
         // Delete transaction -> returns cleanly to US market view
         composeTestRule.onNodeWithTag("tx_delete_button_1").performClick()

@@ -45,7 +45,17 @@ object NumberFormatHelper {
         }
     }
 
-    fun formatDecimal(value: Double, decimals: Int = 2): String {
+    fun formatDecimal(
+        value: Double,
+        decimals: Int = 2,
+        stripTrailingZeroDecimals: Boolean = false
+    ): String {
+        if (decimals == 0) {
+            val rounded = round(abs(value)).toLong()
+            val isNegative = value < 0
+            val formatted = formatWithCommas(rounded)
+            return if (isNegative && rounded != 0L) "-$formatted" else formatted
+        }
         val factor = when (decimals) {
             1 -> 10.0
             2 -> 100.0
@@ -59,9 +69,23 @@ object NumberFormatHelper {
         val parts = rounded.toString().split('.')
         val intPart = formatWithCommas(parts[0].toLongOrNull() ?: 0L)
         val fracPart = if (parts.size > 1) parts[1].padEnd(decimals, '0').take(decimals) else "0".repeat(decimals)
+
+        if (stripTrailingZeroDecimals && fracPart.all { it == '0' }) {
+            val isZero = (parts[0].toLongOrNull() ?: 0L) == 0L
+            return if (isNegative && !isZero) "-$intPart" else intPart
+        }
+
         val formatted = "$intPart.$fracPart"
         val isZero = (parts[0].toLongOrNull() ?: 0L) == 0L && fracPart.all { it == '0' }
         return if (isNegative && !isZero) "-$formatted" else formatted
+    }
+
+    /**
+     * Formats cost or price. If the fractional part is .00 (or all zeros),
+     * automatically strips the decimal point and trailing zero digits.
+     */
+    fun formatCost(value: Double, decimals: Int = 2): String {
+        return formatDecimal(value, decimals = decimals, stripTrailingZeroDecimals = true)
     }
 
     fun formatShares(shares: Double, isIntegerMarket: Boolean = true): String {

@@ -365,9 +365,9 @@ fun StockHoldingHeaderCard(
                     )
                     Spacer(modifier = Modifier.height(2.dp))
                     val formattedAvgCost = if (market == Market.US) {
-                        "$ ${NumberFormatHelper.formatDecimal(avgCost, 2)}"
+                        "$ ${NumberFormatHelper.formatCost(avgCost, 2)}"
                     } else {
-                        NumberFormatHelper.formatDecimal(avgCost, 2)
+                        NumberFormatHelper.formatCost(avgCost, 2)
                     }
                     Text(
                         text = formattedAvgCost,
@@ -391,7 +391,7 @@ fun StockHoldingHeaderCard(
                     )
                     Spacer(modifier = Modifier.height(2.dp))
                     val formattedCostBasis = if (market == Market.US) {
-                        "$ ${NumberFormatHelper.formatDecimal(costBasis, 2)}"
+                        "$ ${NumberFormatHelper.formatCost(costBasis, 2)}"
                     } else {
                         NumberFormatHelper.formatCurrency(costBasis, prefix = "NT$ ", decimals = 0)
                     }
@@ -563,9 +563,9 @@ fun TransactionHistoryCard(
                     isIntegerMarket = market == Market.TAIWAN
                 )
                 val formattedPrice = if (market == Market.US) {
-                    "$ ${NumberFormatHelper.formatDecimal(transaction.price, 2)}"
+                    "$ ${NumberFormatHelper.formatCost(transaction.price, 2)}"
                 } else {
-                    NumberFormatHelper.formatDecimal(transaction.price, 2)
+                    NumberFormatHelper.formatCost(transaction.price, 2)
                 }
 
                 Text(

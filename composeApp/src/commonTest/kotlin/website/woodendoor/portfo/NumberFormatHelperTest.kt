@@ -42,5 +42,19 @@ class NumberFormatHelperTest {
         assertEquals("301.50", NumberFormatHelper.formatDecimal(301.50, 2))
         assertEquals("1,234.56", NumberFormatHelper.formatDecimal(1234.56, 2))
         assertEquals("0.00", NumberFormatHelper.formatDecimal(0.0, 2))
+        // Decimals = 0 should NOT produce trailing dot
+        assertEquals("0", NumberFormatHelper.formatDecimal(0.0, 0))
+        assertEquals("20", NumberFormatHelper.formatDecimal(20.0, 0))
+    }
+
+    @Test
+    fun testFormatCost_stripsTrailingZeroDecimals() {
+        assertEquals("600", NumberFormatHelper.formatCost(600.0, 2))
+        assertEquals("700", NumberFormatHelper.formatCost(700.0, 2))
+        assertEquals("150", NumberFormatHelper.formatCost(150.0, 2))
+        assertEquals("0", NumberFormatHelper.formatCost(0.0, 2))
+        // Non-zero decimals are preserved
+        assertEquals("150.40", NumberFormatHelper.formatCost(150.40, 2))
+        assertEquals("160.33", NumberFormatHelper.formatCost(160.33, 2))
     }
 }
