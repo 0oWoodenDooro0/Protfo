@@ -53,7 +53,7 @@ fun PortfoTopBar(
             ) {
                 Icon(
                     imageVector = if (isDarkTheme) Icons.Default.LightMode else Icons.Default.DarkMode,
-                    contentDescription = if (isDarkTheme) "Switch to light theme" else "Switch to dark theme",
+                    contentDescription = if (isDarkTheme) "切換至淺色模式" else "切換至深色模式",
                     tint = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }

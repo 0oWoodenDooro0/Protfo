@@ -77,7 +77,7 @@ fun PortfoApp(
                     ) {
                         Icon(
                             imageVector = Icons.Default.Add,
-                            contentDescription = "Add Transaction"
+                            contentDescription = "新增交易"
                         )
                     }
                 }

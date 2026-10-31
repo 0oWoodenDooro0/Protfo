@@ -33,7 +33,7 @@ class PortfoAppRobolectricTest {
 
         // Verify initial view is Taiwan market container
         composeTestRule.onNodeWithTag("taiwan_market_container").assertIsDisplayed()
-        composeTestRule.onNodeWithText("Taiwan Portfolio Cost (TWD)").assertIsDisplayed()
+        composeTestRule.onNodeWithText("總投資成本").assertIsDisplayed()
     }
 
     @Test
@@ -50,12 +50,12 @@ class PortfoAppRobolectricTest {
 
         // Verify US market container is displayed
         composeTestRule.onNodeWithTag("us_market_container").assertIsDisplayed()
-        composeTestRule.onNodeWithText("US Portfolio Cost (USD)").assertIsDisplayed()
+        composeTestRule.onNodeWithText("總投資成本").assertIsDisplayed()
 
         // Switch back to Taiwan tab
         composeTestRule.onNodeWithTag("tab_tw").performClick()
         composeTestRule.onNodeWithTag("taiwan_market_container").assertIsDisplayed()
-        composeTestRule.onNodeWithText("Taiwan Portfolio Cost (TWD)").assertIsDisplayed()
+        composeTestRule.onNodeWithText("總投資成本").assertIsDisplayed()
     }
 
     @Test

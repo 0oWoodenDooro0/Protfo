@@ -132,7 +132,7 @@ fun StockDetailScreen(
                     ) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back"
+                            contentDescription = "返回"
                         )
                     }
                 },
@@ -162,13 +162,13 @@ fun StockDetailScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "Transaction History",
+                    text = "交易紀錄",
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSurface
                 )
                 Text(
-                    text = "${transactions.size} records",
+                    text = "${transactions.size} 筆紀錄",
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -192,7 +192,7 @@ fun StockDetailScreen(
                     )
                     Spacer(modifier = Modifier.height(12.dp))
                     Text(
-                        text = "No transactions recorded for this asset",
+                        text = "尚無此標的交易紀錄",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -240,14 +240,14 @@ fun StockDetailScreen(
                 modifier = Modifier.testTag("dialog_delete_transaction"),
                 title = {
                     Text(
-                        text = "Delete Transaction",
+                        text = "刪除交易",
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.Bold
                     )
                 },
                 text = {
                     Text(
-                        text = "Are you sure you want to delete this ${txToDelete.type.name.lowercase()} transaction for ${txToDelete.symbol}?",
+                        text = "確定要刪除此筆交易紀錄嗎？",
                         style = MaterialTheme.typography.bodyMedium
                     )
                 },
@@ -267,7 +267,7 @@ fun StockDetailScreen(
                         modifier = Modifier.testTag("button_confirm_delete")
                     ) {
                         Text(
-                            text = "Confirm",
+                            text = "確定",
                             color = MaterialTheme.colorScheme.error,
                             fontWeight = FontWeight.Bold
                         )
@@ -278,7 +278,7 @@ fun StockDetailScreen(
                         onClick = { transactionToDelete = null },
                         modifier = Modifier.testTag("button_cancel_delete")
                     ) {
-                        Text("Cancel")
+                        Text("取消")
                     }
                 }
             )
@@ -288,7 +288,7 @@ fun StockDetailScreen(
 
 /**
  * Header card showing current holding summary for this asset:
- * total shares, weighted average cost, total cost basis.
+ * single box layout with total shares, weighted average cost, and total cost basis.
  */
 @Composable
 fun StockHoldingHeaderCard(
@@ -315,109 +315,92 @@ fun StockHoldingHeaderCard(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "Current Holding Summary",
+                    text = "持股總覽",
                     style = MaterialTheme.typography.labelMedium,
                     fontWeight = FontWeight.Medium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
-                Surface(
-                    shape = RoundedCornerShape(4.dp),
-                    color = MaterialTheme.colorScheme.primaryContainer
-                ) {
-                    Text(
-                        text = market.currency,
-                        style = MaterialTheme.typography.labelSmall,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer,
-                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
-                    )
-                }
             }
 
-            Surface(
-                shape = RoundedCornerShape(10.dp),
-                color = MaterialTheme.colorScheme.surface
+            // Direct 3-column metrics without nested Surface box
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Row(
+                val totalShares = holding?.totalShares ?: 0.0
+                val avgCost = holding?.avgCostPerShare ?: 0.0
+                val costBasis = holding?.totalCostBasis ?: 0.0
+                val isIntegerMarket = market == Market.TAIWAN
+
+                // Column 1: 持股數量
+                Column(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(12.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween
+                        .weight(1f)
+                        .testTag("detail_holding_shares")
                 ) {
-                    val totalShares = holding?.totalShares ?: 0.0
-                    val avgCost = holding?.avgCostPerShare ?: 0.0
-                    val costBasis = holding?.totalCostBasis ?: 0.0
-                    val isIntegerMarket = market == Market.TAIWAN
+                    Text(
+                        text = "持股數量",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Spacer(modifier = Modifier.height(2.dp))
+                    Text(
+                        text = NumberFormatHelper.formatShares(totalShares, isIntegerMarket = isIntegerMarket),
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
 
-                    // Column 1: Total Shares
-                    Column(
-                        modifier = Modifier
-                            .weight(1f)
-                            .testTag("detail_holding_shares")
-                    ) {
-                        Text(
-                            text = "Total Shares",
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                        Spacer(modifier = Modifier.height(2.dp))
-                        Text(
-                            text = NumberFormatHelper.formatShares(totalShares, isIntegerMarket = isIntegerMarket),
-                            style = MaterialTheme.typography.bodyMedium,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
+                // Column 2: 平均成本
+                Column(
+                    modifier = Modifier
+                        .weight(1f)
+                        .testTag("detail_holding_avg_cost")
+                ) {
+                    Text(
+                        text = "平均成本",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Spacer(modifier = Modifier.height(2.dp))
+                    val formattedAvgCost = if (market == Market.US) {
+                        "$ ${NumberFormatHelper.formatDecimal(avgCost, 2)}"
+                    } else {
+                        NumberFormatHelper.formatDecimal(avgCost, 2)
                     }
+                    Text(
+                        text = formattedAvgCost,
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
 
-                    // Column 2: Weighted Average Cost
-                    Column(
-                        modifier = Modifier
-                            .weight(1f)
-                            .testTag("detail_holding_avg_cost")
-                    ) {
-                        Text(
-                            text = "Weighted Avg Cost",
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                        Spacer(modifier = Modifier.height(2.dp))
-                        val formattedAvgCost = if (market == Market.US) {
-                            "$ ${NumberFormatHelper.formatDecimal(avgCost, 2)}"
-                        } else {
-                            NumberFormatHelper.formatDecimal(avgCost, 2)
-                        }
-                        Text(
-                            text = formattedAvgCost,
-                            style = MaterialTheme.typography.bodyMedium,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
+                // Column 3: 總成本
+                Column(
+                    modifier = Modifier
+                        .weight(1f),
+                    horizontalAlignment = Alignment.End
+                ) {
+                    Text(
+                        text = "總成本",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.testTag("detail_holding_cost_basis")
+                    )
+                    Spacer(modifier = Modifier.height(2.dp))
+                    val formattedCostBasis = if (market == Market.US) {
+                        "$ ${NumberFormatHelper.formatDecimal(costBasis, 2)}"
+                    } else {
+                        NumberFormatHelper.formatCurrency(costBasis, prefix = "NT$ ", decimals = 0)
                     }
-
-                    // Column 3: Total Cost Basis
-                    Column(
-                        modifier = Modifier
-                            .weight(1f)
-                            .testTag("detail_holding_cost_basis")
-                    ) {
-                        Text(
-                            text = "Total Cost Basis",
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                        Spacer(modifier = Modifier.height(2.dp))
-                        val formattedCostBasis = if (market == Market.US) {
-                            "$ ${NumberFormatHelper.formatDecimal(costBasis, 2)}"
-                        } else {
-                            NumberFormatHelper.formatCurrency(costBasis, prefix = "NT$ ", decimals = 0)
-                        }
-                        Text(
-                            text = formattedCostBasis,
-                            style = MaterialTheme.typography.bodyMedium,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
-                    }
+                    Text(
+                        text = formattedCostBasis,
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.primary
+                    )
                 }
             }
 
@@ -437,7 +420,7 @@ fun StockHoldingHeaderCard(
                     NumberFormatHelper.formatCurrency(realizedPnL, prefix = prefix, decimals = if (market == Market.US) 2 else 0)
                 }
                 Text(
-                    text = "Realized PnL: $formattedPnL",
+                    text = "已實現損益: $formattedPnL",
                     style = MaterialTheme.typography.bodySmall,
                     fontWeight = FontWeight.SemiBold,
                     color = pnlColor,
@@ -449,8 +432,7 @@ fun StockHoldingHeaderCard(
 }
 
 /**
- * Transaction history item with direction indicator (buy vs sell) vector icon,
- * clear color accents, date, shares, price, fee, tax, and action buttons (Edit, Delete).
+ * Transaction history item rendered in a single clean box without nested inner containers.
  */
 @Composable
 fun TransactionHistoryCard(
@@ -470,7 +452,7 @@ fun TransactionHistoryCard(
         )
     ) {
         Column(
-            modifier = Modifier.padding(12.dp),
+            modifier = Modifier.padding(14.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             // Row 1: Direction indicator, Date, Action buttons
@@ -479,7 +461,7 @@ fun TransactionHistoryCard(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // Direction indicator with standard Material vector icon & badge
+                // Direction indicator badge
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -513,12 +495,12 @@ fun TransactionHistoryCard(
                         ) {
                             Icon(
                                 imageVector = directionIcon,
-                                contentDescription = if (isBuy) "Buy" else "Sell",
+                                contentDescription = if (isBuy) "買進" else "賣出",
                                 modifier = Modifier.size(16.dp),
                                 tint = badgeContentColor
                             )
                             Text(
-                                text = if (isBuy) "Buy" else "Sell",
+                                text = if (isBuy) "買進" else "賣出",
                                 style = MaterialTheme.typography.labelMedium,
                                 fontWeight = FontWeight.Bold,
                                 color = badgeContentColor
@@ -547,7 +529,7 @@ fun TransactionHistoryCard(
                     ) {
                         Icon(
                             imageVector = Icons.Default.Edit,
-                            contentDescription = "Edit Transaction",
+                            contentDescription = "編輯交易",
                             modifier = Modifier.size(20.dp),
                             tint = MaterialTheme.colorScheme.primary
                         )
@@ -560,7 +542,7 @@ fun TransactionHistoryCard(
                     ) {
                         Icon(
                             imageVector = Icons.Default.Delete,
-                            contentDescription = "Delete Transaction",
+                            contentDescription = "刪除交易",
                             modifier = Modifier.size(20.dp),
                             tint = MaterialTheme.colorScheme.error
                         )
@@ -568,63 +550,58 @@ fun TransactionHistoryCard(
                 }
             }
 
-            // Row 2: Shares, Price, Fee, and Tax
-            Surface(
-                shape = RoundedCornerShape(8.dp),
-                color = MaterialTheme.colorScheme.surface
+            // Row 2: Shares, Price, Fee, and Tax (directly in card, no nested Surface box)
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 2.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 12.dp, vertical = 8.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
+                val formattedShares = NumberFormatHelper.formatShares(
+                    transaction.shares,
+                    isIntegerMarket = market == Market.TAIWAN
+                )
+                val formattedPrice = if (market == Market.US) {
+                    "$ ${NumberFormatHelper.formatDecimal(transaction.price, 2)}"
+                } else {
+                    NumberFormatHelper.formatDecimal(transaction.price, 2)
+                }
+
+                Text(
+                    text = "$formattedShares @ $formattedPrice",
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.testTag("tx_shares_price_${transaction.id}")
+                )
+
+                Column(
+                    horizontalAlignment = Alignment.End
                 ) {
-                    val formattedShares = NumberFormatHelper.formatShares(
-                        transaction.shares,
-                        isIntegerMarket = market == Market.TAIWAN
-                    )
-                    val formattedPrice = if (market == Market.US) {
-                        "$ ${NumberFormatHelper.formatDecimal(transaction.price, 2)}"
+                    val feeStr = if (market == Market.US) {
+                        "$ ${NumberFormatHelper.formatDecimal(transaction.fee, 2)}"
                     } else {
-                        NumberFormatHelper.formatDecimal(transaction.price, 2)
+                        NumberFormatHelper.formatDecimal(transaction.fee, 0)
                     }
-
                     Text(
-                        text = "$formattedShares @ $formattedPrice",
-                        style = MaterialTheme.typography.bodyMedium,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onSurface,
-                        modifier = Modifier.testTag("tx_shares_price_${transaction.id}")
+                        text = "手續費: $feeStr",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.testTag("tx_fee_${transaction.id}")
                     )
-
-                    Column(
-                        horizontalAlignment = Alignment.End
-                    ) {
-                        val feeStr = if (market == Market.US) {
-                            "$ ${NumberFormatHelper.formatDecimal(transaction.fee, 2)}"
+                    if (transaction.type == TransactionType.SELL) {
+                        val taxStr = if (market == Market.US) {
+                            "$ ${NumberFormatHelper.formatDecimal(transaction.tax, 2)}"
                         } else {
-                            NumberFormatHelper.formatDecimal(transaction.fee, 0)
+                            NumberFormatHelper.formatDecimal(transaction.tax, 0)
                         }
                         Text(
-                            text = "Fee: $feeStr",
+                            text = "證交稅: $taxStr",
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.testTag("tx_fee_${transaction.id}")
+                            modifier = Modifier.testTag("tx_tax_${transaction.id}")
                         )
-                        if (transaction.type == TransactionType.SELL) {
-                            val taxStr = if (market == Market.US) {
-                                "$ ${NumberFormatHelper.formatDecimal(transaction.tax, 2)}"
-                            } else {
-                                NumberFormatHelper.formatDecimal(transaction.tax, 0)
-                            }
-                            Text(
-                                text = "Tax: $taxStr",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                modifier = Modifier.testTag("tx_tax_${transaction.id}")
-                            )
-                        }
                     }
                 }
             }

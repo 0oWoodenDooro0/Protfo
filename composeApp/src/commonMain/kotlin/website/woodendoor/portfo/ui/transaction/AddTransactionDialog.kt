@@ -155,7 +155,7 @@ fun AddTransactionDialog(
         modifier = Modifier.testTag("dialog_add_transaction"),
         title = {
             Text(
-                text = if (transactionType == TransactionType.BUY) "Record Buy Transaction" else "Record Sell Transaction",
+                text = if (transactionType == TransactionType.BUY) "記錄買進交易" else "記錄賣出交易",
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold
             )
@@ -182,7 +182,7 @@ fun AddTransactionDialog(
                                 feeText = "0"
                             }
                         },
-                        label = { Text("Taiwan (TWD)") },
+                        label = { Text("台股") },
                         modifier = Modifier.testTag("input_market_tw")
                     )
                     FilterChip(
@@ -196,7 +196,7 @@ fun AddTransactionDialog(
                                 taxText = "0"
                             }
                         },
-                        label = { Text("US (USD)") },
+                        label = { Text("美股") },
                         modifier = Modifier.testTag("input_market_us")
                     )
                 }
@@ -214,7 +214,7 @@ fun AddTransactionDialog(
                         modifier = Modifier.testTag("button_type_buy"),
                         icon = {}
                     ) {
-                        Text("Buy", modifier = Modifier.testTag("input_type_buy"))
+                        Text("買進", modifier = Modifier.testTag("input_type_buy"))
                     }
                     SegmentedButton(
                         selected = transactionType == TransactionType.SELL,
@@ -229,7 +229,7 @@ fun AddTransactionDialog(
                         modifier = Modifier.testTag("button_type_sell"),
                         icon = {}
                     ) {
-                        Text("Sell", modifier = Modifier.testTag("input_type_sell"))
+                        Text("賣出", modifier = Modifier.testTag("input_type_sell"))
                     }
                 }
 
@@ -276,7 +276,7 @@ fun AddTransactionDialog(
                             }
                         } else {
                             Text(
-                                text = "No active holdings available to sell",
+                                text = "目前無可賣出的持股",
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 modifier = Modifier.testTag("no_holdings_message")
@@ -298,8 +298,8 @@ fun AddTransactionDialog(
                             isNameAutofilled = true
                         }
                     },
-                    label = { Text(if (selectedMarket == Market.TAIWAN) "Stock Code" else "Ticker Symbol") },
-                    placeholder = { Text(if (selectedMarket == Market.TAIWAN) "e.g. 2330" else "e.g. AAPL") },
+                    label = { Text("股票代號") },
+                    placeholder = { Text(if (selectedMarket == Market.TAIWAN) "例如 2330" else "例如 AAPL") },
                     singleLine = true,
                     isError = transactionType == TransactionType.SELL && symbol.isNotBlank() && !ownsShares,
                     modifier = Modifier
@@ -309,7 +309,7 @@ fun AddTransactionDialog(
 
                 if (transactionType == TransactionType.SELL && symbol.isNotBlank() && !ownsShares) {
                     Text(
-                        text = "No shares owned for this asset",
+                        text = "未持有此標的",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.error,
                         modifier = Modifier.testTag("error_no_shares_owned")
@@ -319,7 +319,7 @@ fun AddTransactionDialog(
                 // Real-time max sellable shares hint
                 if (transactionType == TransactionType.SELL && ownsShares) {
                     Text(
-                        text = "Max sellable: ${NumberFormatHelper.formatShares(currentHoldingShares, selectedMarket == Market.TAIWAN)}",
+                        text = "可賣數量: ${NumberFormatHelper.formatShares(currentHoldingShares, selectedMarket == Market.TAIWAN)}",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.primary,
                         fontWeight = FontWeight.Medium,
@@ -375,8 +375,8 @@ fun AddTransactionDialog(
                         name = newName
                         isNameAutofilled = false
                     },
-                    label = { Text("Name") },
-                    placeholder = { Text(if (selectedMarket == Market.TAIWAN) "e.g. 台積電" else "e.g. Apple Inc.") },
+                    label = { Text("股票名稱") },
+                    placeholder = { Text(if (selectedMarket == Market.TAIWAN) "例如 台積電" else "例如 Apple Inc.") },
                     singleLine = true,
                     modifier = Modifier
                         .fillMaxWidth()
@@ -430,13 +430,13 @@ fun AddTransactionDialog(
                 OutlinedTextField(
                     value = priceText,
                     onValueChange = { priceText = it },
-                    label = { Text(if (selectedMarket == Market.TAIWAN) "Unit Price (TWD)" else "Unit Price (USD) ($)") },
-                    placeholder = { Text(if (selectedMarket == Market.TAIWAN) "e.g. 600" else "e.g. 120.20") },
+                    label = { Text("成交單價") },
+                    placeholder = { Text(if (selectedMarket == Market.TAIWAN) "例如 600" else "例如 120.20") },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                     isError = priceText.isNotEmpty() && !isPriceValid,
                     supportingText = {
                         if (priceText.isNotEmpty() && !isPriceValid) {
-                            Text("Price must be greater than 0")
+                            Text("單價必須大於 0")
                         }
                     },
                     singleLine = true,
@@ -450,15 +450,9 @@ fun AddTransactionDialog(
                     value = sharesText,
                     onValueChange = { sharesText = it },
                     label = {
-                        Text(
-                            if (transactionType == TransactionType.SELL) {
-                                if (selectedMarket == Market.TAIWAN) "Sold Shares (Integer)" else "Sold Shares"
-                            } else {
-                                if (selectedMarket == Market.TAIWAN) "Shares (Integer)" else "Shares"
-                            }
-                        )
+                        Text(if (transactionType == TransactionType.SELL) "賣出股數" else "買進股數")
                     },
-                    placeholder = { Text(if (selectedMarket == Market.TAIWAN) "e.g. 1000" else "e.g. 2.5") },
+                    placeholder = { Text(if (selectedMarket == Market.TAIWAN) "例如 1000" else "例如 2.5") },
                     keyboardOptions = KeyboardOptions(
                         keyboardType = if (selectedMarket == Market.TAIWAN) KeyboardType.Number else KeyboardType.Decimal
                     ),
@@ -467,9 +461,9 @@ fun AddTransactionDialog(
                         if (sharesText.isNotEmpty() && !isSharesValid && !isOverselling) {
                             Text(
                                 if (selectedMarket == Market.TAIWAN) {
-                                    "Shares must be a positive integer"
+                                    "股數必須為正整數"
                                 } else {
-                                    "Shares must be greater than 0"
+                                    "股數必須大於 0"
                                 }
                             )
                         }
@@ -482,7 +476,7 @@ fun AddTransactionDialog(
 
                 if (isOverselling) {
                     Text(
-                        text = "Cannot sell more shares than currently held",
+                        text = "賣出股數不可大於現有持股",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.error,
                         modifier = Modifier.testTag("error_oversell")
@@ -493,13 +487,13 @@ fun AddTransactionDialog(
                 OutlinedTextField(
                     value = feeText,
                     onValueChange = { feeText = it },
-                    label = { Text(if (selectedMarket == Market.TAIWAN) "Fee (TWD)" else "Fee (USD) ($)") },
+                    label = { Text("手續費") },
                     placeholder = { Text(if (selectedMarket == Market.TAIWAN) "0" else "1.0") },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                     isError = feeText.isNotEmpty() && !isFeeValid,
                     supportingText = {
                         if (feeText.isNotEmpty() && !isFeeValid) {
-                            Text("Fee must be non-negative")
+                            Text("手續費不可為負數")
                         }
                     },
                     singleLine = true,
@@ -516,15 +510,15 @@ fun AddTransactionDialog(
                             taxText = it
                             isTaxManuallyEdited = true
                         },
-                        label = { Text(if (selectedMarket == Market.TAIWAN) "Tax (TWD)" else "Tax (USD) ($)") },
+                        label = { Text("證券交易稅") },
                         placeholder = { Text(if (selectedMarket == Market.TAIWAN) "0" else "0.0") },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                         isError = taxText.isNotEmpty() && !isTaxValid,
                         supportingText = {
                             if (taxText.isNotEmpty() && !isTaxValid) {
-                                Text("Tax must be non-negative")
+                                Text("證交稅不可為負數")
                             } else if (selectedMarket == Market.TAIWAN) {
-                                Text("0.3% securities transaction tax")
+                                Text("0.3% 證券交易稅")
                             }
                         },
                         singleLine = true,
@@ -538,7 +532,7 @@ fun AddTransactionDialog(
                 OutlinedTextField(
                     value = dateText,
                     onValueChange = { dateText = it },
-                    label = { Text("Transaction Date") },
+                    label = { Text("交易日期") },
                     placeholder = { Text("YYYY-MM-DD") },
                     singleLine = true,
                     modifier = Modifier
@@ -571,7 +565,7 @@ fun AddTransactionDialog(
             ) {
                 Icon(
                     imageVector = Icons.Default.Check,
-                    contentDescription = "Save"
+                    contentDescription = "儲存"
                 )
             }
         },
@@ -582,7 +576,7 @@ fun AddTransactionDialog(
             ) {
                 Icon(
                     imageVector = Icons.Default.Close,
-                    contentDescription = "Cancel"
+                    contentDescription = "取消"
                 )
             }
         }

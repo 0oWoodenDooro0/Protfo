@@ -133,7 +133,7 @@ fun EditTransactionDialog(
         modifier = Modifier.testTag("dialog_edit_transaction"),
         title = {
             Text(
-                text = "Edit Transaction",
+                text = "編輯交易",
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold
             )
@@ -181,7 +181,7 @@ fun EditTransactionDialog(
                             }
                         ) {
                             Text(
-                                text = transaction.type.name,
+                                text = if (transaction.type == TransactionType.BUY) "買進" else "賣出",
                                 style = MaterialTheme.typography.labelSmall,
                                 fontWeight = FontWeight.Bold,
                                 color = if (transaction.type == TransactionType.BUY) {
@@ -197,7 +197,7 @@ fun EditTransactionDialog(
 
                 if (transaction.type == TransactionType.SELL) {
                     Text(
-                        text = "Max sellable: ${NumberFormatHelper.formatShares(maxSellableShares, transaction.market == Market.TAIWAN)}",
+                        text = "可賣數量: ${NumberFormatHelper.formatShares(maxSellableShares, transaction.market == Market.TAIWAN)}",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.primary,
                         fontWeight = FontWeight.Medium,
@@ -209,16 +209,12 @@ fun EditTransactionDialog(
                 OutlinedTextField(
                     value = priceText,
                     onValueChange = { priceText = it },
-                    label = {
-                        Text(
-                            if (transaction.market == Market.TAIWAN) "Unit Price (TWD)" else "Unit Price (USD) ($)"
-                        )
-                    },
+                    label = { Text("成交單價") },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                     isError = priceText.isNotEmpty() && !isPriceValid,
                     supportingText = {
                         if (priceText.isNotEmpty() && !isPriceValid) {
-                            Text("Price must be greater than 0")
+                            Text("單價必須大於 0")
                         }
                     },
                     singleLine = true,
@@ -232,9 +228,7 @@ fun EditTransactionDialog(
                     value = sharesText,
                     onValueChange = { sharesText = it },
                     label = {
-                        Text(
-                            if (transaction.market == Market.TAIWAN) "Shares (Integer)" else "Shares"
-                        )
+                        Text(if (transaction.type == TransactionType.SELL) "賣出股數" else "買進股數")
                     },
                     keyboardOptions = KeyboardOptions(
                         keyboardType = if (transaction.market == Market.TAIWAN) KeyboardType.Number else KeyboardType.Decimal
@@ -244,9 +238,9 @@ fun EditTransactionDialog(
                         if (sharesText.isNotEmpty() && !isSharesValid && !isOverselling) {
                             Text(
                                 if (transaction.market == Market.TAIWAN) {
-                                    "Shares must be a positive integer"
+                                    "股數必須為正整數"
                                 } else {
-                                    "Shares must be greater than 0"
+                                    "股數必須大於 0"
                                 }
                             )
                         }
@@ -259,7 +253,7 @@ fun EditTransactionDialog(
 
                 if (isOverselling) {
                     Text(
-                        text = "Cannot sell more shares than currently held",
+                        text = "賣出股數不可大於現有持股",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.error,
                         modifier = Modifier.testTag("error_oversell")
@@ -270,16 +264,12 @@ fun EditTransactionDialog(
                 OutlinedTextField(
                     value = feeText,
                     onValueChange = { feeText = it },
-                    label = {
-                        Text(
-                            if (transaction.market == Market.TAIWAN) "Fee (TWD)" else "Fee (USD) ($)"
-                        )
-                    },
+                    label = { Text("手續費") },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                     isError = feeText.isNotEmpty() && !isFeeValid,
                     supportingText = {
                         if (feeText.isNotEmpty() && !isFeeValid) {
-                            Text("Fee must be non-negative")
+                            Text("手續費不可為負數")
                         }
                     },
                     singleLine = true,
@@ -296,18 +286,14 @@ fun EditTransactionDialog(
                             taxText = it
                             isTaxManuallyEdited = true
                         },
-                        label = {
-                            Text(
-                                if (transaction.market == Market.TAIWAN) "Tax (TWD)" else "Tax (USD) ($)"
-                            )
-                        },
+                        label = { Text("證券交易稅") },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                         isError = taxText.isNotEmpty() && !isTaxValid,
                         supportingText = {
                             if (taxText.isNotEmpty() && !isTaxValid) {
-                                Text("Tax must be non-negative")
+                                Text("證交稅不可為負數")
                             } else if (transaction.market == Market.TAIWAN) {
-                                Text("0.3% securities transaction tax")
+                                Text("0.3% 證券交易稅")
                             }
                         },
                         singleLine = true,
@@ -321,7 +307,7 @@ fun EditTransactionDialog(
                 OutlinedTextField(
                     value = dateText,
                     onValueChange = { dateText = it },
-                    label = { Text("Transaction Date") },
+                    label = { Text("交易日期") },
                     placeholder = { Text("YYYY-MM-DD") },
                     singleLine = true,
                     modifier = Modifier
@@ -350,7 +336,7 @@ fun EditTransactionDialog(
             ) {
                 Icon(
                     imageVector = Icons.Default.Check,
-                    contentDescription = "Save"
+                    contentDescription = "儲存"
                 )
             }
         },
@@ -361,7 +347,7 @@ fun EditTransactionDialog(
             ) {
                 Icon(
                     imageVector = Icons.Default.Close,
-                    contentDescription = "Cancel"
+                    contentDescription = "取消"
                 )
             }
         }

@@ -75,8 +75,9 @@ fun MarketSegmentedBar(
                         modifier = Modifier.size(18.dp)
                     )
                     Spacer(modifier = Modifier.width(8.dp))
+                    val marketLabel = if (market == Market.TAIWAN) "台股" else "美股"
                     Text(
-                        text = "${market.displayName} (${market.currency})",
+                        text = marketLabel,
                         style = MaterialTheme.typography.labelLarge,
                         fontWeight = FontWeight.Bold
                     )

@@ -84,16 +84,16 @@ class StockDetailUiTest {
 
         // Header card holding summary
         composeTestRule.onNodeWithTag("detail_summary_card").assertIsDisplayed()
-        composeTestRule.onNodeWithText("Total Shares").assertIsDisplayed()
+        composeTestRule.onNodeWithText("持股數量").assertIsDisplayed()
         composeTestRule.onNodeWithText("1,000 股").assertIsDisplayed()
-        composeTestRule.onNodeWithText("Weighted Avg Cost").assertIsDisplayed()
+        composeTestRule.onNodeWithText("平均成本").assertIsDisplayed()
         composeTestRule.onNodeWithText("600.00").assertIsDisplayed()
-        composeTestRule.onNodeWithText("Total Cost Basis").assertIsDisplayed()
+        composeTestRule.onNodeWithText("總成本").assertIsDisplayed()
         composeTestRule.onNodeWithText("NT$ 600,000").assertIsDisplayed()
 
         // Transaction history
-        composeTestRule.onNodeWithText("Transaction History").assertIsDisplayed()
-        composeTestRule.onNodeWithText("Buy").assertIsDisplayed()
+        composeTestRule.onNodeWithText("交易紀錄").assertIsDisplayed()
+        composeTestRule.onNodeWithText("買進").assertIsDisplayed()
         composeTestRule.onNodeWithText("1,000 股 @ 600.00").assertIsDisplayed()
 
         // Tap back button
@@ -132,7 +132,7 @@ class StockDetailUiTest {
 
         // Edit dialog should appear preloaded
         composeTestRule.onNodeWithTag("dialog_edit_transaction").assertIsDisplayed()
-        composeTestRule.onNodeWithText("Edit Transaction").assertIsDisplayed()
+        composeTestRule.onNodeWithText("編輯交易").assertIsDisplayed()
         composeTestRule.onNodeWithTag("input_price").assertTextContains("600")
         composeTestRule.onNodeWithTag("input_shares").assertTextContains("1000")
 
@@ -163,8 +163,8 @@ class StockDetailUiTest {
         // Navigate back and verify market container reflected the change
         composeTestRule.onNodeWithTag("detail_back_button").performClick()
         composeTestRule.onNodeWithTag("taiwan_market_container").assertIsDisplayed()
-        composeTestRule.onNodeWithText("NT$ 1,050,000").assertIsDisplayed()
-        composeTestRule.onNodeWithText("1,500 股").assertIsDisplayed()
+        composeTestRule.onNodeWithTag("taiwan_total_cost_basis").assertTextContains("NT$ 1,050,000")
+        composeTestRule.onNodeWithTag("holding_card_2330").assertTextContains("1,500 股")
     }
 
     @Test
@@ -201,14 +201,14 @@ class StockDetailUiTest {
         composeTestRule.onNodeWithTag("stock_detail_screen").assertIsDisplayed()
 
         // 2 transactions should be listed
-        composeTestRule.onNodeWithText("2 records").assertIsDisplayed()
+        composeTestRule.onNodeWithText("2 筆紀錄").assertIsDisplayed()
 
         // Click delete on Lot 2 (tx id 2)
         composeTestRule.onNodeWithTag("tx_delete_button_2").performClick()
 
         // Confirmation dialog appears
         composeTestRule.onNodeWithTag("dialog_delete_transaction").assertIsDisplayed()
-        composeTestRule.onNodeWithText("Delete Transaction").assertIsDisplayed()
+        composeTestRule.onNodeWithText("刪除交易").assertIsDisplayed()
         composeTestRule.onNodeWithTag("button_confirm_delete").assertIsDisplayed()
         composeTestRule.onNodeWithTag("button_cancel_delete").assertIsDisplayed()
 
@@ -216,7 +216,7 @@ class StockDetailUiTest {
         composeTestRule.onNodeWithTag("button_cancel_delete").performClick()
 
         // Transaction should still be there (2 records)
-        composeTestRule.onNodeWithText("2 records").assertIsDisplayed()
+        composeTestRule.onNodeWithText("2 筆紀錄").assertIsDisplayed()
 
         // Click delete again, and Confirm
         composeTestRule.onNodeWithTag("tx_delete_button_2").performClick()
@@ -224,7 +224,7 @@ class StockDetailUiTest {
 
         // Wait for update: only 1 record remains, holding is 1,000 shares @ 600.00
         composeTestRule.waitUntil(timeoutMillis = 5000) {
-            composeTestRule.onAllNodesWithText("1 records").fetchSemanticsNodes().isNotEmpty()
+            composeTestRule.onAllNodesWithText("1 筆紀錄").fetchSemanticsNodes().isNotEmpty()
         }
         composeTestRule.onNodeWithText("1,000 股").assertIsDisplayed()
         composeTestRule.onNodeWithText("600.00").assertIsDisplayed()

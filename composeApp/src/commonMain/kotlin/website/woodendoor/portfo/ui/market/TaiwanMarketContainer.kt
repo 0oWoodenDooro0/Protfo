@@ -70,13 +70,8 @@ fun TaiwanMarketContainer(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "Taiwan Portfolio Cost (TWD)",
+                        text = "總投資成本",
                         style = MaterialTheme.typography.labelMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                    Text(
-                        text = "Odd & Round Lots",
-                        style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
@@ -104,14 +99,14 @@ fun TaiwanMarketContainer(
                         NumberFormatHelper.formatCurrency(summary.realizedPnL)
                     }
                     Text(
-                        text = "Realized PnL: $formattedPnL",
+                        text = "已實現損益: $formattedPnL",
                         style = MaterialTheme.typography.bodySmall,
                         fontWeight = if (summary.realizedPnL != 0.0) FontWeight.SemiBold else FontWeight.Normal,
                         color = pnlColor,
                         modifier = Modifier.testTag("taiwan_realized_pnl")
                     )
                     Text(
-                        text = "Holdings: ${summary.activeHoldingCount}",
+                        text = "持股檔數: ${summary.activeHoldingCount}",
                         style = MaterialTheme.typography.bodySmall,
                         fontWeight = FontWeight.Medium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -139,13 +134,13 @@ fun TaiwanMarketContainer(
                 )
                 Spacer(modifier = Modifier.height(12.dp))
                 Text(
-                    text = "No Taiwan holdings recorded",
+                    text = "尚未建立台股持股紀錄",
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = "Tap + to record buy transactions",
+                    text = "點擊下方 + 記錄交易",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.outline
                 )
@@ -170,8 +165,8 @@ fun TaiwanMarketContainer(
 }
 
 /**
- * Holding card rendered in Variant B layout:
- * Compact three-column metrics for shares, average cost, and cost basis.
+ * Holding card rendered in clean single-box layout:
+ * Displays symbol and name on the left, total cost and quantity on the right without clutter.
  */
 @Composable
 fun TaiwanHoldingCardVariantB(
@@ -189,117 +184,51 @@ fun TaiwanHoldingCardVariantB(
             containerColor = MaterialTheme.colorScheme.surfaceVariant
         )
     ) {
-        Column(
-            modifier = Modifier.padding(12.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 14.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            // Header: Symbol, Name, Market tag
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+            // Left: Symbol & Name
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(2.dp)
             ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(6.dp)
-                ) {
-                    Text(
-                        text = holding.symbol,
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
+                Text(
+                    text = holding.symbol,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                if (holding.name.isNotBlank() && holding.name != holding.symbol) {
                     Text(
                         text = holding.name,
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
-                Surface(
-                    shape = RoundedCornerShape(4.dp),
-                    color = MaterialTheme.colorScheme.primaryContainer
-                ) {
-                    Text(
-                        text = holding.currency,
-                        style = MaterialTheme.typography.labelSmall,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer,
-                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
-                    )
-                }
             }
 
-            // Variant B: Three-column metrics grid
-            Surface(
-                shape = RoundedCornerShape(8.dp),
-                color = MaterialTheme.colorScheme.surface
+            // Right: Total Cost & Quantity
+            Column(
+                horizontalAlignment = Alignment.End,
+                verticalArrangement = Arrangement.spacedBy(2.dp)
             ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(8.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    // Column 1: 持股數量
-                    Column(
-                        modifier = Modifier
-                            .weight(1f)
-                            .testTag("holding_shares_${holding.symbol}")
-                    ) {
-                        Text(
-                            text = "持股數量",
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                        Spacer(modifier = Modifier.height(2.dp))
-                        Text(
-                            text = NumberFormatHelper.formatShares(holding.totalShares, isIntegerMarket = true),
-                            style = MaterialTheme.typography.bodyMedium,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
-                    }
-
-                    // Column 2: 平均成本
-                    Column(
-                        modifier = Modifier
-                            .weight(1f)
-                            .testTag("holding_avg_cost_${holding.symbol}")
-                    ) {
-                        Text(
-                            text = "平均成本",
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                        Spacer(modifier = Modifier.height(2.dp))
-                        Text(
-                            text = NumberFormatHelper.formatDecimal(holding.avgCostPerShare, 2),
-                            style = MaterialTheme.typography.bodyMedium,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
-                    }
-
-                    // Column 3: 總成本基礎
-                    Column(
-                        modifier = Modifier
-                            .weight(1f)
-                            .testTag("holding_cost_basis_${holding.symbol}")
-                    ) {
-                        Text(
-                            text = "總成本基礎",
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                        Spacer(modifier = Modifier.height(2.dp))
-                        Text(
-                            text = NumberFormatHelper.formatWithCommas(round(holding.totalCostBasis).toLong()),
-                            style = MaterialTheme.typography.bodyMedium,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
-                    }
-                }
+                Text(
+                    text = NumberFormatHelper.formatCurrency(holding.totalCostBasis),
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.testTag("holding_cost_basis_${holding.symbol}")
+                )
+                Text(
+                    text = NumberFormatHelper.formatShares(holding.totalShares, isIntegerMarket = true),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.testTag("holding_shares_${holding.symbol}")
+                )
             }
         }
     }

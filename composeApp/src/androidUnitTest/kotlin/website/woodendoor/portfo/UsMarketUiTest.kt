@@ -63,14 +63,14 @@ class UsMarketUiTest {
 
         // Summary Card
         composeTestRule.onNodeWithTag("us_summary_card").assertIsDisplayed()
-        composeTestRule.onNodeWithText("US Portfolio Cost (USD)").assertIsDisplayed()
+        composeTestRule.onNodeWithText("總投資成本").assertIsDisplayed()
         composeTestRule.onNodeWithTag("us_total_cost_basis").assertIsDisplayed()
         composeTestRule.onNodeWithText("$ 0.00").assertIsDisplayed()
-        composeTestRule.onNodeWithText("Holdings: 0").assertIsDisplayed()
+        composeTestRule.onNodeWithText("持股檔數: 0").assertIsDisplayed()
 
         // Empty state
         composeTestRule.onNodeWithTag("us_empty_holdings").assertIsDisplayed()
-        composeTestRule.onNodeWithText("No US holdings recorded").assertIsDisplayed()
+        composeTestRule.onNodeWithText("尚未建立美股持股紀錄").assertIsDisplayed()
     }
 
     @Test
@@ -138,19 +138,15 @@ class UsMarketUiTest {
 
         // Verify summary card
         composeTestRule.onNodeWithTag("us_total_cost_basis").assertTextContains("$ 301.50")
-        composeTestRule.onNodeWithText("Holdings: 1").assertIsDisplayed()
+        composeTestRule.onNodeWithText("持股檔數: 1").assertIsDisplayed()
 
-        // Verify Variant B holding card
+        // Verify single-box holding card
         composeTestRule.onNodeWithTag("holding_card_AAPL").assertIsDisplayed()
         composeTestRule.onNodeWithText("AAPL").assertIsDisplayed()
-        composeTestRule.onNodeWithText("USD").assertIsDisplayed()
 
-        // Verify three-column metrics
+        // Verify metrics
         composeTestRule.onNodeWithTag("holding_shares_AAPL", useUnmergedTree = true).assertIsDisplayed()
         composeTestRule.onNodeWithText("2.50 股").assertIsDisplayed()
-
-        composeTestRule.onNodeWithTag("holding_avg_cost_AAPL", useUnmergedTree = true).assertIsDisplayed()
-        composeTestRule.onNodeWithText("$ 120.60").assertIsDisplayed()
 
         composeTestRule.onNodeWithTag("holding_cost_basis_AAPL", useUnmergedTree = true).assertIsDisplayed()
         composeTestRule.onNodeWithTag("holding_card_AAPL").assertTextContains("$ 301.50")
@@ -196,14 +192,12 @@ class UsMarketUiTest {
 
         // Total cost basis = 301.50 + 126.00 = 427.50
         // Total shares = 2.5 + 1.25 = 3.75
-        // Avg cost = 427.50 / 3.75 = 114.00
         composeTestRule.waitUntil(timeoutMillis = 5000) {
             composeTestRule.onAllNodesWithText("3.75 股").fetchSemanticsNodes().isNotEmpty()
         }
 
         composeTestRule.onNodeWithTag("us_total_cost_basis").assertTextContains("$ 427.50")
         composeTestRule.onNodeWithText("3.75 股").assertIsDisplayed()
-        composeTestRule.onNodeWithText("$ 114.00").assertIsDisplayed()
     }
 
     @Test
@@ -226,12 +220,12 @@ class UsMarketUiTest {
 
         // Open Sell dialog
         composeTestRule.onNodeWithTag("fab_add_transaction").performClick()
-        composeTestRule.onNodeWithText("Sell").performClick()
+        composeTestRule.onNodeWithText("賣出").performClick()
         composeTestRule.onNodeWithTag("input_symbol").performTextInput("AAPL")
 
         // Max sellable hint must show 2.50 股
         composeTestRule.onNodeWithTag("hint_max_sellable").assertIsDisplayed()
-        composeTestRule.onNodeWithText("Max sellable: 2.50 股").assertIsDisplayed()
+        composeTestRule.onNodeWithText("可賣數量: 2.50 股").assertIsDisplayed()
 
         composeTestRule.onNodeWithTag("input_price").performTextInput("150.0")
 
@@ -257,6 +251,6 @@ class UsMarketUiTest {
 
         // Realized PnL: proceeds $149 - cost $100.40 = +$ 48.60
         composeTestRule.onNodeWithTag("us_realized_pnl").assertIsDisplayed()
-        composeTestRule.onNodeWithText("Realized PnL: +$ 48.60").assertIsDisplayed()
+        composeTestRule.onNodeWithText("已實現損益: +$ 48.60").assertIsDisplayed()
     }
 }

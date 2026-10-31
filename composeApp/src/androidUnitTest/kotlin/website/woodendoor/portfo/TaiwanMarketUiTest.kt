@@ -60,14 +60,14 @@ class TaiwanMarketUiTest {
 
         // Summary Card
         composeTestRule.onNodeWithTag("taiwan_summary_card").assertIsDisplayed()
-        composeTestRule.onNodeWithText("Taiwan Portfolio Cost (TWD)").assertIsDisplayed()
+        composeTestRule.onNodeWithText("總投資成本").assertIsDisplayed()
         composeTestRule.onNodeWithTag("taiwan_total_cost_basis").assertIsDisplayed()
         composeTestRule.onNodeWithText("NT$ 0").assertIsDisplayed()
-        composeTestRule.onNodeWithText("Holdings: 0").assertIsDisplayed()
+        composeTestRule.onNodeWithText("持股檔數: 0").assertIsDisplayed()
 
         // Empty state
         composeTestRule.onNodeWithTag("taiwan_empty_holdings").assertIsDisplayed()
-        composeTestRule.onNodeWithText("No Taiwan holdings recorded").assertIsDisplayed()
+        composeTestRule.onNodeWithText("尚未建立台股持股紀錄").assertIsDisplayed()
     }
 
     @Test
@@ -128,24 +128,19 @@ class TaiwanMarketUiTest {
         }
 
         // Verify summary card update
-        composeTestRule.onNodeWithText("NT$ 600,100").assertIsDisplayed()
-        composeTestRule.onNodeWithText("Holdings: 1").assertIsDisplayed()
+        composeTestRule.onNodeWithTag("taiwan_total_cost_basis").assertTextContains("NT$ 600,100")
+        composeTestRule.onNodeWithText("持股檔數: 1").assertIsDisplayed()
 
-        // Verify Variant B holding card
+        // Verify single-box holding card
         composeTestRule.onNodeWithTag("holding_card_2330").assertIsDisplayed()
         composeTestRule.onNodeWithText("2330").assertIsDisplayed()
         composeTestRule.onNodeWithText("台積電").assertIsDisplayed()
-        composeTestRule.onNodeWithText("TWD").assertIsDisplayed()
 
-        // Metrics row
+        // Holding metrics: total cost and quantity
         composeTestRule.onNodeWithTag("holding_shares_2330", useUnmergedTree = true).assertIsDisplayed()
         composeTestRule.onNodeWithText("1,000 股").assertIsDisplayed()
 
-        composeTestRule.onNodeWithTag("holding_avg_cost_2330", useUnmergedTree = true).assertIsDisplayed()
-        composeTestRule.onNodeWithText("600.10").assertIsDisplayed()
-
-        composeTestRule.onNodeWithTag("holding_cost_basis_2330", useUnmergedTree = true).assertIsDisplayed()
-        composeTestRule.onNodeWithText("600,100").assertIsDisplayed()
+        composeTestRule.onNodeWithTag("holding_cost_basis_2330", useUnmergedTree = true).assertTextContains("NT$ 600,100")
     }
 
     @Test
@@ -167,9 +162,9 @@ class TaiwanMarketUiTest {
 
         // Wait for Lot 1 to be reflected
         composeTestRule.waitUntil(timeoutMillis = 5000) {
-            composeTestRule.onAllNodesWithText("NT$ 600,100").fetchSemanticsNodes().isNotEmpty()
+            composeTestRule.onAllNodesWithTag("holding_card_2330").fetchSemanticsNodes().isNotEmpty()
         }
-        composeTestRule.onNodeWithText("NT$ 600,100").assertIsDisplayed()
+        composeTestRule.onNodeWithTag("taiwan_total_cost_basis").assertTextContains("NT$ 600,100")
 
         // Add Lot 2: 500 shares @ 900, fee 50
         composeTestRule.onNodeWithTag("fab_add_transaction").performClick()
@@ -184,16 +179,14 @@ class TaiwanMarketUiTest {
 
         // Expected total cost basis = 600100 + 450050 = 1050150
         // Expected total shares = 1500
-        // Expected avg cost = 1050150 / 1500 = 700.10
         composeTestRule.waitUntil(timeoutMillis = 5000) {
-            composeTestRule.onAllNodesWithText("NT$ 1,050,150").fetchSemanticsNodes().isNotEmpty()
+            composeTestRule.onAllNodesWithText("1,500 股").fetchSemanticsNodes().isNotEmpty()
         }
-        composeTestRule.onNodeWithText("NT$ 1,050,150").assertIsDisplayed()
-        composeTestRule.onNodeWithText("Holdings: 1").assertIsDisplayed()
+        composeTestRule.onNodeWithTag("taiwan_total_cost_basis").assertTextContains("NT$ 1,050,150")
+        composeTestRule.onNodeWithText("持股檔數: 1").assertIsDisplayed()
 
         composeTestRule.onNodeWithText("1,500 股").assertIsDisplayed()
-        composeTestRule.onNodeWithText("700.10").assertIsDisplayed()
-        composeTestRule.onNodeWithText("1,050,150").assertIsDisplayed()
+        composeTestRule.onNodeWithTag("holding_cost_basis_2330", useUnmergedTree = true).assertTextContains("NT$ 1,050,150")
     }
 
     @Test
@@ -207,14 +200,14 @@ class TaiwanMarketUiTest {
         composeTestRule.onNodeWithTag("dialog_add_transaction").assertIsDisplayed()
 
         // Switch to Sell
-        composeTestRule.onNodeWithText("Sell").performClick()
+        composeTestRule.onNodeWithText("賣出").performClick()
 
         // Enter symbol not owned
         composeTestRule.onNodeWithTag("input_symbol").performTextInput("2330")
 
         // Validation guard: error shown right below symbol
         composeTestRule.onNodeWithTag("error_no_shares_owned").assertIsDisplayed()
-        composeTestRule.onNodeWithText("No shares owned for this asset").assertIsDisplayed()
+        composeTestRule.onNodeWithText("未持有此標的").assertIsDisplayed()
 
         composeTestRule.onNodeWithTag("input_price").performTextInput("600")
         composeTestRule.onNodeWithTag("input_shares").performTextInput("1000")
@@ -245,12 +238,12 @@ class TaiwanMarketUiTest {
 
         // Open Dialog to Sell
         composeTestRule.onNodeWithTag("fab_add_transaction").performClick()
-        composeTestRule.onNodeWithText("Sell").performClick()
+        composeTestRule.onNodeWithText("賣出").performClick()
         composeTestRule.onNodeWithTag("input_symbol").performTextInput("2330")
 
         // Max sellable hint must be displayed
         composeTestRule.onNodeWithTag("hint_max_sellable").assertIsDisplayed()
-        composeTestRule.onNodeWithText("Max sellable: 1,000 股").assertIsDisplayed()
+        composeTestRule.onNodeWithText("可賣數量: 1,000 股").assertIsDisplayed()
 
         composeTestRule.onNodeWithTag("input_price").performTextInput("650")
 
@@ -294,7 +287,7 @@ class TaiwanMarketUiTest {
         // Cost of sold = 100 * 400 = 40,000
         // Realized PnL = 59,800 - 40,000 = +19,800
         composeTestRule.onNodeWithTag("fab_add_transaction").performClick()
-        composeTestRule.onNodeWithText("Sell").performClick()
+        composeTestRule.onNodeWithText("賣出").performClick()
         composeTestRule.onNodeWithTag("input_symbol").performTextInput("2330")
         composeTestRule.onNodeWithTag("input_price").performTextInput("150")
         composeTestRule.onNodeWithTag("input_shares").performTextInput("400")
@@ -311,12 +304,11 @@ class TaiwanMarketUiTest {
 
         // Verify updated remaining shares and cost basis
         composeTestRule.onNodeWithText("600 股").assertIsDisplayed()
-        composeTestRule.onNodeWithText("60,000").assertIsDisplayed()
-        composeTestRule.onNodeWithText("NT$ 60,000").assertIsDisplayed()
+        composeTestRule.onNodeWithTag("taiwan_total_cost_basis").assertTextContains("NT$ 60,000")
 
         // Verify summary Realized PnL formatting and display
         composeTestRule.onNodeWithTag("taiwan_realized_pnl").assertIsDisplayed()
-        composeTestRule.onNodeWithText("Realized PnL: +NT$ 19,800").assertIsDisplayed()
+        composeTestRule.onNodeWithText("已實現損益: +NT$ 19,800").assertIsDisplayed()
     }
 
     @Test
@@ -340,7 +332,7 @@ class TaiwanMarketUiTest {
         // Liquidate all 500 shares @ 120, fee 0, tax 0
         // Realized PnL = (120 - 100) * 500 = +10,000
         composeTestRule.onNodeWithTag("fab_add_transaction").performClick()
-        composeTestRule.onNodeWithText("Sell").performClick()
+        composeTestRule.onNodeWithText("賣出").performClick()
         composeTestRule.onNodeWithTag("input_symbol").performTextInput("2330")
         composeTestRule.onNodeWithTag("input_price").performTextInput("120")
         composeTestRule.onNodeWithTag("input_shares").performTextInput("500")
@@ -354,11 +346,11 @@ class TaiwanMarketUiTest {
         }
         composeTestRule.onNodeWithTag("taiwan_empty_holdings").assertIsDisplayed()
         composeTestRule.onNodeWithText("NT$ 0").assertIsDisplayed()
-        composeTestRule.onNodeWithText("Holdings: 0").assertIsDisplayed()
+        composeTestRule.onNodeWithText("持股檔數: 0").assertIsDisplayed()
 
         // Realized PnL is retained in market summary
         composeTestRule.onNodeWithTag("taiwan_realized_pnl").assertIsDisplayed()
-        composeTestRule.onNodeWithText("Realized PnL: +NT$ 10,000").assertIsDisplayed()
+        composeTestRule.onNodeWithText("已實現損益: +NT$ 10,000").assertIsDisplayed()
     }
 
     @Test
@@ -381,7 +373,7 @@ class TaiwanMarketUiTest {
 
         // Sell: 500 shares @ 200 -> trade amount 100,000 -> 0.3% tax = 300
         composeTestRule.onNodeWithTag("fab_add_transaction").performClick()
-        composeTestRule.onNodeWithText("Sell").performClick()
+        composeTestRule.onNodeWithText("賣出").performClick()
         composeTestRule.onNodeWithTag("input_symbol").performTextInput("2330")
         composeTestRule.onNodeWithTag("input_price").performTextInput("200")
         composeTestRule.onNodeWithTag("input_shares").performTextInput("500")
@@ -401,6 +393,6 @@ class TaiwanMarketUiTest {
         // Cost of sold = 100 * 500 = 50,000
         // Realized PnL = 99,700 - 50,000 = +49,700
         composeTestRule.onNodeWithTag("taiwan_realized_pnl").assertIsDisplayed()
-        composeTestRule.onNodeWithText("Realized PnL: +NT$ 49,700").assertIsDisplayed()
+        composeTestRule.onNodeWithText("已實現損益: +NT$ 49,700").assertIsDisplayed()
     }
 }
