@@ -133,7 +133,7 @@ class StockDetailUiTest {
 
         // Edit dialog should appear preloaded
         composeTestRule.onNodeWithTag("dialog_edit_transaction").assertIsDisplayed()
-        composeTestRule.onNodeWithText("編輯交易").assertIsDisplayed()
+        composeTestRule.onNodeWithTag("dialog_edit_title").assertIsDisplayed()
         composeTestRule.onNodeWithTag("input_price").assertTextContains("600")
         composeTestRule.onNodeWithTag("input_shares").assertTextContains("1000")
 
@@ -202,14 +202,14 @@ class StockDetailUiTest {
         composeTestRule.onNodeWithTag("stock_detail_screen").assertIsDisplayed()
 
         // 2 transactions should be listed
-        composeTestRule.onNodeWithText("2 筆紀錄").assertIsDisplayed()
+        composeTestRule.onNodeWithTag("detail_tx_count").assertTextContains("2", substring = true)
 
         // Click delete on Lot 2 (tx id 2)
         composeTestRule.onNodeWithTag("tx_delete_button_2").performClick()
 
         // Confirmation dialog appears
         composeTestRule.onNodeWithTag("dialog_delete_transaction").assertIsDisplayed()
-        composeTestRule.onNodeWithText("刪除交易").assertIsDisplayed()
+        composeTestRule.onNodeWithTag("dialog_delete_title").assertIsDisplayed()
         composeTestRule.onNodeWithTag("button_confirm_delete").assertIsDisplayed()
         composeTestRule.onNodeWithTag("button_cancel_delete").assertIsDisplayed()
 
@@ -217,7 +217,7 @@ class StockDetailUiTest {
         composeTestRule.onNodeWithTag("button_cancel_delete").performClick()
 
         // Transaction should still be there (2 records)
-        composeTestRule.onNodeWithText("2 筆紀錄").assertIsDisplayed()
+        composeTestRule.onNodeWithTag("detail_tx_count").assertTextContains("2", substring = true)
 
         // Click delete again, and Confirm
         composeTestRule.onNodeWithTag("tx_delete_button_2").performClick()
@@ -225,8 +225,9 @@ class StockDetailUiTest {
 
         // Wait for update: only 1 record remains, holding is 1,000 shares @ 600.00
         composeTestRule.waitUntil(timeoutMillis = 5000) {
-            composeTestRule.onAllNodesWithText("1 筆紀錄").fetchSemanticsNodes().isNotEmpty()
+            composeTestRule.onAllNodesWithTag("detail_tx_count").fetchSemanticsNodes().isNotEmpty()
         }
+        composeTestRule.onNodeWithTag("detail_tx_count").assertTextContains("1", substring = true)
         composeTestRule.onNodeWithText("1,000 股").assertIsDisplayed()
         composeTestRule.onNodeWithText("600").assertIsDisplayed()
         composeTestRule.onNodeWithText("NT$ 600,000").assertIsDisplayed()

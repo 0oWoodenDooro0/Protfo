@@ -135,7 +135,8 @@ fun EditTransactionDialog(
             Text(
                 text = "編輯交易",
                 style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.testTag("dialog_edit_title")
             )
         },
         text = {

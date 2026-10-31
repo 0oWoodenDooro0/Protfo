@@ -170,7 +170,8 @@ fun StockDetailScreen(
                 Text(
                     text = "${transactions.size} 筆紀錄",
                     style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.testTag("detail_tx_count")
                 )
             }
 
@@ -242,7 +243,8 @@ fun StockDetailScreen(
                     Text(
                         text = "刪除交易",
                         style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.Bold
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.testTag("dialog_delete_title")
                     )
                 },
                 text = {
