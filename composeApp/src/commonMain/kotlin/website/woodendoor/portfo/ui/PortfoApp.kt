@@ -25,6 +25,7 @@ import website.woodendoor.portfo.domain.model.MarketSummary
 import website.woodendoor.portfo.domain.repository.PortfolioRepository
 import website.woodendoor.portfo.ui.components.MarketSegmentedBar
 import website.woodendoor.portfo.ui.components.PortfoTopBar
+import website.woodendoor.portfo.ui.detail.StockDetailScreen
 import website.woodendoor.portfo.ui.market.TaiwanMarketContainer
 import website.woodendoor.portfo.ui.market.UsMarketContainer
 import website.woodendoor.portfo.ui.theme.PortfoTheme
@@ -38,6 +39,7 @@ fun PortfoApp(
 ) {
     var isDarkTheme by remember { mutableStateOf(systemDarkTheme) }
     var selectedMarket by remember { mutableStateOf(initialMarket) }
+    var selectedHoldingSymbol by remember { mutableStateOf<String?>(null) }
     var showAddTransactionDialog by remember { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()
 
@@ -50,70 +52,81 @@ fun PortfoApp(
         .collectAsState(initial = MarketSummary(market = Market.US))
 
     PortfoTheme(darkTheme = isDarkTheme) {
-        Scaffold(
-            modifier = Modifier
-                .fillMaxSize()
-                .testTag("portfo_scaffold"),
-            topBar = {
-                PortfoTopBar(
-                    isDarkTheme = isDarkTheme,
-                    onToggleTheme = { isDarkTheme = !isDarkTheme }
-                )
-            },
-            floatingActionButton = {
-                FloatingActionButton(
-                    onClick = { showAddTransactionDialog = true },
-                    modifier = Modifier.testTag("fab_add_transaction")
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Add,
-                        contentDescription = "Add Transaction"
-                    )
-                }
-            }
-        ) { innerPadding ->
-            Column(
+        if (selectedHoldingSymbol != null) {
+            StockDetailScreen(
+                symbol = selectedHoldingSymbol!!,
+                market = selectedMarket,
+                repository = repository,
+                onBack = { selectedHoldingSymbol = null }
+            )
+        } else {
+            Scaffold(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(innerPadding)
-            ) {
-                MarketSegmentedBar(
-                    selectedMarket = selectedMarket,
-                    onMarketSelected = { selectedMarket = it }
-                )
-
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .testTag("market_content_area")
-                ) {
-                    when (selectedMarket) {
-                        Market.TAIWAN -> TaiwanMarketContainer(
-                            summary = taiwanSummary,
-                            holdings = taiwanHoldings,
-                            onAddTransactionClick = { showAddTransactionDialog = true }
-                        )
-                        Market.US -> UsMarketContainer(
-                            summary = usSummary,
-                            holdings = usHoldings,
-                            onAddTransactionClick = { showAddTransactionDialog = true }
+                    .testTag("portfo_scaffold"),
+                topBar = {
+                    PortfoTopBar(
+                        isDarkTheme = isDarkTheme,
+                        onToggleTheme = { isDarkTheme = !isDarkTheme }
+                    )
+                },
+                floatingActionButton = {
+                    FloatingActionButton(
+                        onClick = { showAddTransactionDialog = true },
+                        modifier = Modifier.testTag("fab_add_transaction")
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Add,
+                            contentDescription = "Add Transaction"
                         )
                     }
                 }
-            }
+            ) { innerPadding ->
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(innerPadding)
+                ) {
+                    MarketSegmentedBar(
+                        selectedMarket = selectedMarket,
+                        onMarketSelected = { selectedMarket = it }
+                    )
 
-            if (showAddTransactionDialog) {
-                AddTransactionDialog(
-                    initialMarket = selectedMarket,
-                    repository = repository,
-                    onDismiss = { showAddTransactionDialog = false },
-                    onSaveTransaction = { transaction ->
-                        showAddTransactionDialog = false
-                        coroutineScope.launch {
-                            repository.addTransaction(transaction)
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .testTag("market_content_area")
+                    ) {
+                        when (selectedMarket) {
+                            Market.TAIWAN -> TaiwanMarketContainer(
+                                summary = taiwanSummary,
+                                holdings = taiwanHoldings,
+                                onAddTransactionClick = { showAddTransactionDialog = true },
+                                onHoldingClick = { holding -> selectedHoldingSymbol = holding.symbol }
+                            )
+                            Market.US -> UsMarketContainer(
+                                summary = usSummary,
+                                holdings = usHoldings,
+                                onAddTransactionClick = { showAddTransactionDialog = true },
+                                onHoldingClick = { holding -> selectedHoldingSymbol = holding.symbol }
+                            )
                         }
                     }
-                )
+                }
+
+                if (showAddTransactionDialog) {
+                    AddTransactionDialog(
+                        initialMarket = selectedMarket,
+                        repository = repository,
+                        onDismiss = { showAddTransactionDialog = false },
+                        onSaveTransaction = { transaction ->
+                            showAddTransactionDialog = false
+                            coroutineScope.launch {
+                                repository.addTransaction(transaction)
+                            }
+                        }
+                    )
+                }
             }
         }
     }

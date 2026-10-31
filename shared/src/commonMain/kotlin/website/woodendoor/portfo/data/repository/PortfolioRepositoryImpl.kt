@@ -27,6 +27,12 @@ class PortfolioRepositoryImpl(
         }
     }
 
+    override fun getTransactionsForAsset(market: Market, symbol: String): Flow<List<Transaction>> {
+        return transactionDao.getTransactionsBySymbol(symbol.trim().uppercase(), market.code).map { list ->
+            list.map { it.toDomain() }
+        }
+    }
+
     override fun getHoldings(market: Market): Flow<List<Holding>> {
         return getTransactions(market).map { txs ->
             calculatePortfolioUseCase.execute(market, txs).holdings
@@ -66,6 +72,20 @@ class PortfolioRepositoryImpl(
             )
         )
         return id
+    }
+
+    override suspend fun updateTransaction(transaction: Transaction) {
+        val entity = transaction.toEntity()
+        transactionDao.updateTransaction(entity)
+        assetDao.upsertAsset(
+            AssetEntity(
+                symbol = transaction.symbol,
+                market = transaction.market.code,
+                name = transaction.name,
+                currency = transaction.market.currency,
+                updatedAt = transaction.transactedAt
+            )
+        )
     }
 
     override suspend fun deleteTransaction(id: Long) {

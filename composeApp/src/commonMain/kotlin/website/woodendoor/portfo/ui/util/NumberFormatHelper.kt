@@ -2,6 +2,12 @@ package website.woodendoor.portfo.ui.util
 
 import kotlin.math.abs
 import kotlin.math.round
+import kotlin.time.Clock
+import kotlin.time.Instant
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.atStartOfDayIn
+import kotlinx.datetime.toLocalDateTime
 
 object NumberFormatHelper {
 
@@ -69,6 +75,37 @@ object NumberFormatHelper {
             } else {
                 "${formatDecimal(shares, 2)} 股"
             }
+        }
+    }
+
+    @Suppress("DEPRECATION")
+    fun formatDate(epochMillis: Long): String {
+        return try {
+            val instant = Instant.fromEpochMilliseconds(epochMillis)
+            val localDate = instant.toLocalDateTime(TimeZone.currentSystemDefault()).date
+            val y = localDate.year.toString().padStart(4, '0')
+            val m = localDate.monthNumber.toString().padStart(2, '0')
+            val d = localDate.dayOfMonth.toString().padStart(2, '0')
+            "$y-$m-$d"
+        } catch (_: Exception) {
+            "2026-10-31"
+        }
+    }
+
+    fun parseDateToEpochMillis(dateStr: String): Long {
+        return try {
+            val parts = dateStr.trim().split("-")
+            if (parts.size == 3) {
+                val year = parts[0].toInt()
+                val month = parts[1].toInt()
+                val day = parts[2].toInt()
+                val date = LocalDate(year, month, day)
+                date.atStartOfDayIn(TimeZone.currentSystemDefault()).toEpochMilliseconds()
+            } else {
+                Clock.System.now().toEpochMilliseconds()
+            }
+        } catch (_: Exception) {
+            Clock.System.now().toEpochMilliseconds()
         }
     }
 }
