@@ -12,10 +12,15 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.SegmentedButton
@@ -543,10 +548,10 @@ fun AddTransactionDialog(
             }
         },
         confirmButton = {
-            TextButton(
+            IconButton(
                 onClick = {
                     if (isFormValid) {
-                        val transactedAt = parseDateToEpochMillis(dateText)
+                        val transactedAt = NumberFormatHelper.parseDateToEpochMillis(dateText)
                         val transaction = Transaction(
                             market = selectedMarket,
                             symbol = symbol.trim().uppercase(),
@@ -564,15 +569,21 @@ fun AddTransactionDialog(
                 enabled = isFormValid,
                 modifier = Modifier.testTag("button_save_transaction")
             ) {
-                Text("Save")
+                Icon(
+                    imageVector = Icons.Default.Check,
+                    contentDescription = "Save"
+                )
             }
         },
         dismissButton = {
-            TextButton(
+            IconButton(
                 onClick = onDismiss,
                 modifier = Modifier.testTag("button_cancel_transaction")
             ) {
-                Text("Cancel")
+                Icon(
+                    imageVector = Icons.Default.Close,
+                    contentDescription = "Cancel"
+                )
             }
         }
     )
@@ -591,22 +602,5 @@ private fun getTodayDateString(): String {
         "$y-$m-$d"
     } catch (_: Exception) {
         "2026-10-31"
-    }
-}
-
-private fun parseDateToEpochMillis(dateStr: String): Long {
-    return try {
-        val parts = dateStr.trim().split("-")
-        if (parts.size == 3) {
-            val year = parts[0].toInt()
-            val month = parts[1].toInt()
-            val day = parts[2].toInt()
-            val date = LocalDate(year, month, day)
-            date.atStartOfDayIn(TimeZone.currentSystemDefault()).toEpochMilliseconds()
-        } else {
-            Clock.System.now().toEpochMilliseconds()
-        }
-    } catch (_: Exception) {
-        Clock.System.now().toEpochMilliseconds()
     }
 }

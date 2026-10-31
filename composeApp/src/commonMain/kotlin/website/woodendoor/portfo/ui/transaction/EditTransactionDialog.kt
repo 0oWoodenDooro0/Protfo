@@ -9,7 +9,12 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
@@ -326,7 +331,7 @@ fun EditTransactionDialog(
             }
         },
         confirmButton = {
-            TextButton(
+            IconButton(
                 onClick = {
                     if (isFormValid) {
                         val transactedAt = NumberFormatHelper.parseDateToEpochMillis(dateText)
@@ -343,15 +348,21 @@ fun EditTransactionDialog(
                 enabled = isFormValid,
                 modifier = Modifier.testTag("button_save_transaction")
             ) {
-                Text("Save")
+                Icon(
+                    imageVector = Icons.Default.Check,
+                    contentDescription = "Save"
+                )
             }
         },
         dismissButton = {
-            TextButton(
+            IconButton(
                 onClick = onDismiss,
                 modifier = Modifier.testTag("button_cancel_transaction")
             ) {
-                Text("Cancel")
+                Icon(
+                    imageVector = Icons.Default.Close,
+                    contentDescription = "Cancel"
+                )
             }
         }
     )
