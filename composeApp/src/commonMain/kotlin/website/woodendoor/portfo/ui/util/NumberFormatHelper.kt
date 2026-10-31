@@ -21,7 +21,11 @@ object NumberFormatHelper {
     fun formatCurrency(amount: Double, prefix: String = "NT$ ", decimals: Int = 0): String {
         return if (decimals == 0) {
             val rounded = round(amount).toLong()
-            "$prefix${formatWithCommas(rounded)}"
+            if (rounded < 0) {
+                "-$prefix${formatWithCommas(abs(rounded))}"
+            } else {
+                "$prefix${formatWithCommas(rounded)}"
+            }
         } else {
             val isNegative = amount < 0
             val absAmount = abs(amount)

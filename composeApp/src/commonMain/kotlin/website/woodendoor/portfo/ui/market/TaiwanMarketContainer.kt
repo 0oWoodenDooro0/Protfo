@@ -27,6 +27,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.luminance
 import website.woodendoor.portfo.domain.model.Holding
 import website.woodendoor.portfo.domain.model.Market
 import website.woodendoor.portfo.domain.model.MarketSummary
@@ -90,10 +92,22 @@ fun TaiwanMarketContainer(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
+                    val isDark = MaterialTheme.colorScheme.surface.luminance() < 0.5f
+                    val pnlColor = when {
+                        summary.realizedPnL > 1e-6 -> if (isDark) Color(0xFF81C784) else Color(0xFF2E7D32)
+                        summary.realizedPnL < -1e-6 -> MaterialTheme.colorScheme.error
+                        else -> MaterialTheme.colorScheme.onSurfaceVariant
+                    }
+                    val formattedPnL = if (summary.realizedPnL > 1e-6) {
+                        "+${NumberFormatHelper.formatCurrency(summary.realizedPnL)}"
+                    } else {
+                        NumberFormatHelper.formatCurrency(summary.realizedPnL)
+                    }
                     Text(
-                        text = "Realized PnL: ${NumberFormatHelper.formatCurrency(summary.realizedPnL)}",
+                        text = "Realized PnL: $formattedPnL",
                         style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        fontWeight = if (summary.realizedPnL != 0.0) FontWeight.SemiBold else FontWeight.Normal,
+                        color = pnlColor,
                         modifier = Modifier.testTag("taiwan_realized_pnl")
                     )
                     Text(

@@ -205,4 +205,58 @@ class UsMarketUiTest {
         composeTestRule.onNodeWithText("3.75 股").assertIsDisplayed()
         composeTestRule.onNodeWithText("$ 114.00").assertIsDisplayed()
     }
+
+    @Test
+    fun usFractionalSell_validatesOversellAndRecordsRealizedPnL() {
+        composeTestRule.setContent {
+            PortfoApp(initialMarket = Market.US, repository = repository)
+        }
+
+        // Buy 2.5 shares of AAPL @ $100.0 with fee $1.0 -> cost basis $251.0, avgCost $100.40
+        composeTestRule.onNodeWithTag("fab_add_transaction").performClick()
+        composeTestRule.onNodeWithTag("input_symbol").performTextInput("AAPL")
+        composeTestRule.onNodeWithTag("input_name").performTextInput("Apple Inc.")
+        composeTestRule.onNodeWithTag("input_price").performTextInput("100.0")
+        composeTestRule.onNodeWithTag("input_shares").performTextInput("2.5")
+        composeTestRule.onNodeWithTag("button_save_transaction").performClick()
+
+        composeTestRule.waitUntil(timeoutMillis = 5000) {
+            composeTestRule.onAllNodesWithTag("holding_card_AAPL").fetchSemanticsNodes().isNotEmpty()
+        }
+
+        // Open Sell dialog
+        composeTestRule.onNodeWithTag("fab_add_transaction").performClick()
+        composeTestRule.onNodeWithText("Sell").performClick()
+        composeTestRule.onNodeWithTag("input_symbol").performTextInput("AAPL")
+
+        // Max sellable hint must show 2.50 股
+        composeTestRule.onNodeWithTag("hint_max_sellable").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Max sellable: 2.50 股").assertIsDisplayed()
+
+        composeTestRule.onNodeWithTag("input_price").performTextInput("150.0")
+
+        // Try oversell (3.0 > 2.5)
+        composeTestRule.onNodeWithTag("input_shares").performTextInput("3.0")
+        composeTestRule.onNodeWithTag("error_oversell").performScrollTo().assertIsDisplayed()
+        composeTestRule.onNodeWithTag("button_save_transaction").assertIsNotEnabled()
+
+        // Correct to 1.0 fractional share
+        composeTestRule.onNodeWithTag("input_shares").performTextClearance()
+        composeTestRule.onNodeWithTag("input_shares").performTextInput("1.0")
+        composeTestRule.onNodeWithTag("button_save_transaction").assertIsEnabled()
+        composeTestRule.onNodeWithTag("button_save_transaction").performClick()
+
+        // Wait for update
+        composeTestRule.waitUntil(timeoutMillis = 5000) {
+            composeTestRule.onAllNodesWithText("1.50 股").fetchSemanticsNodes().isNotEmpty()
+        }
+
+        // Remaining shares = 1.50 股, cost basis = $ 150.60
+        composeTestRule.onNodeWithText("1.50 股").assertIsDisplayed()
+        composeTestRule.onNodeWithTag("holding_card_AAPL").assertTextContains("$ 150.60")
+
+        // Realized PnL: proceeds $149 - cost $100.40 = +$ 48.60
+        composeTestRule.onNodeWithTag("us_realized_pnl").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Realized PnL: +$ 48.60").assertIsDisplayed()
+    }
 }

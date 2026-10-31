@@ -28,10 +28,12 @@ class NumberFormatHelperTest {
     fun testFormatCurrencyTwdAndUsd() {
         assertEquals("NT$ 600,100", NumberFormatHelper.formatCurrency(600100.0, prefix = "NT$ ", decimals = 0))
         assertEquals("NT$ 0", NumberFormatHelper.formatCurrency(0.0, prefix = "NT$ ", decimals = 0))
+        assertEquals("-NT$ 500", NumberFormatHelper.formatCurrency(-500.0, prefix = "NT$ ", decimals = 0))
 
         assertEquals("$ 301.50", NumberFormatHelper.formatCurrency(301.50, prefix = "$ ", decimals = 2))
         assertEquals("$ 120.60", NumberFormatHelper.formatCurrency(120.60, prefix = "$ ", decimals = 2))
         assertEquals("$ 0.00", NumberFormatHelper.formatCurrency(0.0, prefix = "$ ", decimals = 2))
+        assertEquals("-$ 15.50", NumberFormatHelper.formatCurrency(-15.50, prefix = "$ ", decimals = 2))
     }
 
     @Test
